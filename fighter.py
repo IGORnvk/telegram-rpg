@@ -11,8 +11,8 @@ class Fighter:
         if self.cur_attacker == 0:
             attacker = self.victim
             defender = self.predator
-        power = attacker.power_calculator()
-        defense = defender.defense_calculator()
+        power = attacker.power_calculator() + attacker.get_total_power()
+        defense = defender.defense_calculator() + defender.get_total_defense()
         assert attacker.mana >= active_skill.mana_usage, 'Маны слишком мало!'
         attacker.mana -= active_skill.mana_usage
         damage_dealt = damage(power, defense, active_skill.effect.value)

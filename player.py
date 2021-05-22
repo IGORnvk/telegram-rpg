@@ -1,15 +1,18 @@
 class Player:
-    def __init__(self, level, username, max_health, cur_health, power, defense, mana, intelligence, active_skills, passive_skills):
+    def __init__(self, level, username, max_health, cur_health, power, defense, mana, intelligence, active_skills,
+                 passive_skills, inventory, potion):
         self.level = level
         self.username = username
         self.max_health = max_health
         self.cur_health = cur_health
         self.power = power
         self.defense = defense
+        self.mana = mana
         self.intelligence = intelligence
         self.active_skills = active_skills
         self.passive_skills = passive_skills
-        self.mana = mana
+        self.inventory = inventory
+        self.potion = potion
 
     def power_calculator(self):
         all_power = self.power
