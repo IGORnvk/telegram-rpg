@@ -1,3 +1,4 @@
+from item import PotionEffectType
 from skill import *
 from move import *
 
@@ -37,6 +38,16 @@ class Fighter:
                 return False, 0
         elif type(move) is UsePotion: 
             potion = move.potion
+            if potion == PotionEffectType.damage.value or potion == PotionEffectType.defense.value:
+                attacker.potions.append(potion)
+            if potion == PotionEffectType.health.value:
+                attacker.cur_health += potion.effect.value
+                if attacker.cur_health >= attacker.max_health:
+                    attacker.cur_health = attacker.max_health
+            if potion == PotionEffectType.mana.value:
+                attacker.cur_mana += potion.effect.value
+                if attacker.cur_mana >= attacker.mana:
+                    attacker.cur_mana = attacker.mana
             return False, 0
 
         return False, 0

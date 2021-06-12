@@ -3,7 +3,7 @@ from skill import PassiveSkillEffectType
 
 
 class Player:
-    def __init__(self, level, username, max_health, cur_health, power, defense, mana, intelligence, active_skills,
+    def __init__(self, level, username, max_health, cur_health, power, defense, mana, cur_mana, intelligence, active_skills,
                  passive_skills, equipment, inventory, potions):
         self.level = level
         self.username = username
@@ -12,6 +12,7 @@ class Player:
         self.power = power
         self.defense = defense
         self.mana = mana
+        self.cur_mana = cur_mana
         self.intelligence = intelligence
         self.active_skills = active_skills
         self.passive_skills = passive_skills
