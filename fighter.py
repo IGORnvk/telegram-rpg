@@ -1,3 +1,6 @@
+from skill import SkillType
+
+
 class Fighter:
     def __init__(self, predator, victim):
         self.predator = predator
@@ -11,16 +14,21 @@ class Fighter:
         if self.cur_attacker == 0:
             attacker = self.victim
             defender = self.predator
-        power = attacker.power_calculator() + attacker.get_total_power()
-        defense = defender.defense_calculator() + defender.get_total_defense()
-        assert attacker.mana >= active_skill.mana_usage, 'Маны слишком мало!'
-        attacker.mana -= active_skill.mana_usage
-        damage_dealt = damage(power, defense, active_skill.effect.value)
-        defender.cur_health -= damage_dealt
-        if defender.cur_health <= 0:
-            self.is_finished = True
-        self.cur_attacker = 1 - self.cur_attacker
-        return self.is_finished, damage_dealt
+        if active_skill.effect.skill_type == SkillType.damage.value:
+            power = attacker.power_calculator()
+            defense = defender.defense_calculator()
+            assert attacker.mana >= active_skill.mana_usage, 'Маны слишком мало!'
+            attacker.mana -= active_skill.mana_usage
+            damage_dealt = damage(power, defense, active_skill.effect.value)
+            defender.cur_health -= damage_dealt
+            if defender.cur_health <= 0:
+                self.is_finished = True
+            self.cur_attacker = 1 - self.cur_attacker
+            return self.is_finished, damage_dealt
+        if active_skill.effect.skill_type == SkillType.heal.value:
+            attacker.cur_health += active_skill.effect.value
+            if attacker.cur_health >= attacker.max_health:
+                attacker.cur_health = attacker.max_health
 
 
 def damage(power, defense, skill_damage):

@@ -1,3 +1,6 @@
+import enum
+
+
 class Skill:
     def __init__(self, skill_type, name, rang, description, mana_usage, effect):
         self.name = name
@@ -18,3 +21,12 @@ class Effect:
     def __init__(self, effect_type, value):
         self.effect_type = effect_type
         self.value = value
+
+
+class SkillType(enum.Enum):
+    damage = 0
+    heal = 1
+    debuff_defense = 2
+    increase_power = 3
+    increase_defense = 4
+    increase_mana = 5
