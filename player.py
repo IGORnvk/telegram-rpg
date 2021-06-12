@@ -1,4 +1,5 @@
-from item import EffectType
+from item import *
+from skill import PassiveSkillEffectType
 
 
 class Player:
@@ -21,19 +22,19 @@ class Player:
     def power_calculator(self):
         all_power = self.power
         for i in self.passive_skills:
-            if i.effect.effect_type == 'power':
+            if i.effect.type == PassiveSkillEffectType.increase_power.value:
                 all_power += i.effect.value
         for i in self.potions:
-            if i.effect.effect_type == EffectType.power.value:
+            if i.effect.effect_type == PotionEffectType.power.value:
                 all_power += i.effect.value
         return all_power + self.equipment.get_total_power()
 
     def defense_calculator(self):
         all_defense = self.defense
         for i in self.passive_skills:
-            if i.effect.effect_type == 'defense':
+            if i.effect.type == PassiveSkillEffectType.increase_defense.value:
                 all_defense += i.effect.value
         for i in self.potions:
-            if i.effect.effect_type == EffectType.defense.value:
+            if i.effect.effect_type == PotionEffectType.defense.value:
                 all_defense += i.effect.value
         return all_defense + self.equipment.get_total_defense()

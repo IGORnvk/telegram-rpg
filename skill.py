@@ -1,5 +1,6 @@
 import enum
 
+
 class Skill:
     def __init__(self, name, rang, description):
         self.name = name
@@ -11,6 +12,7 @@ class PassiveSkillEffectType(enum.Enum):
     increase_power = 0
     increase_defense = 1
     increase_mana = 2
+
 
 class PassiveSkillEffect:
     def __init__(self, value, type: PassiveSkillEffectType):
@@ -28,6 +30,7 @@ class ActiveSkillEffectType(enum.Enum):
     damage = 0
     heal = 1
     debuff_defense = 2
+
 
 class ActiveSkillEffect:
     def __init__(self, value, type: ActiveSkillEffectType):

@@ -29,7 +29,6 @@ class Armor(Item):
         self.armor_type = armor_type
 
 
-
 class PotionEffectType(enum.Enum):
     power = 0
     defense = 1

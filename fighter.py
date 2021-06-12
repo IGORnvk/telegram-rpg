@@ -1,4 +1,4 @@
-from skill import SkillType
+from skill import *
 
 
 class Fighter:
@@ -14,7 +14,7 @@ class Fighter:
         if self.cur_attacker == 0:
             attacker = self.victim
             defender = self.predator
-        if active_skill.effect.skill_type == SkillType.damage.value:
+        if active_skill.effect.type == ActiveSkillEffectType.damage.value:
             power = attacker.power_calculator()
             defense = defender.defense_calculator()
             assert attacker.mana >= active_skill.mana_usage, 'Маны слишком мало!'
@@ -25,7 +25,7 @@ class Fighter:
                 self.is_finished = True
             self.cur_attacker = 1 - self.cur_attacker
             return self.is_finished, damage_dealt
-        if active_skill.effect.skill_type == SkillType.heal.value:
+        if active_skill.effect.type == ActiveSkillEffectType.heal.value:
             attacker.cur_health += active_skill.effect.value
             if attacker.cur_health >= attacker.max_health:
                 attacker.cur_health = attacker.max_health
