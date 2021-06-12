@@ -4,6 +4,7 @@ from item import Weapon, ArmorType, Armor, Potion, PotionEffect, AccessoriesEffe
 from player import *
 from skill import *
 from fighter import *
+from move import *
 
 
 armor = Armor('shield', 'F', 100, ArmorType.shield.value)
@@ -14,8 +15,10 @@ player1 = Player(10, 'Ivan', 63, 63, 20, 15, 40, 10, [ActiveSkill('knife', 'F', 
 player2 = Player(12, 'Igor', 60, 60, 21, 16, 45, 11, [ActiveSkill('knife', 'F', 'first skill', 5, ActiveSkillEffect(15, ActiveSkillEffectType.damage.value))],
                  [PassiveSkill('defense increase', 'F', 'increases your defense', PassiveSkillEffect(6, PassiveSkillEffectType.increase_defense.value))], equipment2, Inventory([]), [Potion('defense buff', 'F', PotionEffect(600, PotionEffectType.defense.value))])
 fighter = Fighter(player1, player2)
+
+
 while True:
-    is_finished, damage = fighter.step(player1.active_skills[0])
+    is_finished, damage = fighter.step(UseActiveSkill(player1.active_skills[0]))
     print(damage, player1.mana, player2.mana, player1.cur_health, player2.cur_health)
     if is_finished:
         break
