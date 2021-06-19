@@ -10,6 +10,16 @@ class Fighter:
         self.cur_attacker = 1
         self.is_finished = False
 
+    def get_attacker(self):
+        if self.cur_attacker == 0:
+            return self.victim
+        return self.predator
+
+    def get_defender(self):
+        if self.cur_attacker == 0:
+            return self.predator
+        return self.victim
+
     def step(self, move: Move):
         attacker = self.predator
         defender = self.victim
