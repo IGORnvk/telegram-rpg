@@ -1,5 +1,11 @@
 from fighter import Fighter
+from move import UseActiveSkill
 from player import Player
+
+
+def print_player_info(player: Player):
+    print(player.username, player.level, player.cur_health, player.cur_mana, player.equipment, player.active_skills,
+          player.passive_skills)
 
 
 class ConsoleGame:
@@ -7,20 +13,16 @@ class ConsoleGame:
         self.player1 = player1
         self.player2 = player2
         self.fighter = Fighter(player1, player2)
-    
-    def print_player_info(player):
-        pass 
-
 
     def run(self):
         game_over = False
-        while (not game_over):
+        while not game_over:
             to_move = self.fighter.get_attacker()
             defender = self.fighter.get_defender()
             skills = to_move.active_skills
-            # TODO player's info
+            print_player_info(to_move)
             for skill in skills:
-                pass # TODO print skills list
+                print(to_move.active_skills, to_move.passive_skills)
             number = int(input())
-            # TODO choose skill skill[number] 
-            # TODO print result of move
+            self.fighter.step(UseActiveSkill(to_move.active_skills[number]))
+            print(to_move.cur_health, to_move.cur_mana, defender.cur_health, defender.cur_mana)
