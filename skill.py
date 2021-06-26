@@ -43,12 +43,3 @@ class ActiveSkill(Skill):
         Skill.__init__(self, name, rang, description)
         self.mana_usage = mana_usage
         self.effect = effect
-
-
-
-# types of active skills:
-#                        damage
-#                        heal //TODO
-#                        debuff defense //TODO
-# types of passive skills:
-#                        characteristic increase
