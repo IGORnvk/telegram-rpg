@@ -1,6 +1,6 @@
 from fighter import Fighter
 from item import PotionEffectType
-from move import UseActiveSkill
+from move import UseActiveSkill, UsePotion
 from player import Player
 from skill import ActiveSkillEffectType
 from item import Potion
@@ -27,9 +27,12 @@ def check_potion_type(potion):
 
 
 def print_player_info(player: Player):
-    print("Игрок {}:\n\tУровень: {}\n\tЗдоровье: {}\n\tМана: {}".format(player.username,
-                                                                        player.level, player.cur_health,
-                                                                        player.cur_mana))
+    print("Игрок {}:\n\tУровень: {}\n\tЗдоровье: {}\n\tМана: {}\n\tСила: {}\n\tЗащита: {}".format(player.username,
+                                                                                                  player.level,
+                                                                                                  player.cur_health,
+                                                                                                  player.cur_mana,
+                                                                                                  player.power_calculator(),
+                                                                                                  player.defense_calculator()))
     skills = player.active_skills
     print("Активные скиллы:")
     for i, skill in enumerate(skills):
@@ -64,23 +67,22 @@ class ConsoleGame:
             defender = self.fighter.get_defender()
             print_player_info(to_move)
             print_player_info(defender)
+            print("Введите 'potion' или 'skill' в зависимости от того, что вы хотите использовать.")
             while True:
                 move_type = input()
                 if move_type == "potion":
-                    try:
-                        number = int(input())
-                        potions = [i for i in to_move.inventory.items if type(i) is Potion]
-                        print("Выбранное зелье: {}".format(potions[number]))
-                        break
-                    except:
-                        print("Введите номер зелья.")
+                    print("Введите номер зелья.")
+                    move = input()
+                    if move == "back":
+                        continue
+                    number = int(move)
+                    potions = [i for i in to_move.inventory.items if type(i) is Potion]
+                    self.fighter.step(UsePotion(potions[number]))
+                    print("Выбранное зелье: {}".format(potions[number]))
+                    break
                 if move_type == "skill":
-                    try:
-                        number = int(input())
-                        print("Выбранный скил: {}".format(to_move.active_skills[number].name))
-                        is_finished, damage = self.fighter.step(UseActiveSkill(to_move.active_skills[number]))
-                        print("Нанесенный урон: {}".format(damage))
-                        break
-                    except:
-                        print("Введите номер скила.")
-                print("Введите 'potion' или 'skill' в зависимости от того, что вы хотите использовать.")
+
+                    print("Выбранный скил: {}".format(to_move.active_skills[number].name))
+                    is_finished, damage = self.fighter.step(UseActiveSkill(to_move.active_skills[number]))
+                    print("Нанесенный урон: {}".format(damage))
+                    break

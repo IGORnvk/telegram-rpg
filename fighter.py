@@ -48,13 +48,18 @@ class Fighter:
                 return False, 0
         elif type(move) is UsePotion: 
             potion = move.potion
-            if potion == PotionEffectType.damage.value or potion == PotionEffectType.defense.value:
+            for i, cur_potion in enumerate(attacker.inventory.items):
+                if potion.name == cur_potion.name:
+                    del attacker.inventory.items[i]
+                    print("Зелье успешно использовано.")
+                    break
+            if potion.effect.effect_type == PotionEffectType.power.value or potion.effect.effect_type == PotionEffectType.defense.value:
                 attacker.potions.append(potion)
-            if potion == PotionEffectType.health.value:
+            if potion.effect.effect_type == PotionEffectType.health.value:
                 attacker.cur_health += potion.effect.value
                 if attacker.cur_health >= attacker.max_health:
                     attacker.cur_health = attacker.max_health
-            if potion == PotionEffectType.mana.value:
+            if potion.effect.effect_type == PotionEffectType.mana.value:
                 attacker.cur_mana += potion.effect.value
                 if attacker.cur_mana >= attacker.mana:
                     attacker.cur_mana = attacker.mana
