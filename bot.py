@@ -1,11 +1,16 @@
+from telebot import types
+
 from telebot import TeleBot
 
+from fighter import Fighter
+from move import UseActiveSkill
 from player import Player
 from player_repository import PlayerRepository
 
 bot = TeleBot('1015483974:AAFiuGMQB1CewhRP4JFbamvUZBjP9z3ytmw')
 
 users = []
+fighter = 0
 
 
 @bot.message_handler(commands=['start'])
@@ -20,18 +25,41 @@ def hello(message):
     if len(users) == 1:
         bot.send_message(message.from_user.id, 'Участников слишком мало, ожидайте.')
     if len(users) == 2:
-        global predator, victim
-        predator = 1
-        victim = 1 - predator
-        bot.send_message(users[predator].id, 'Вы нападаете первым. Выберите скилл или зелье из доступных.')
-        bot.send_message(users[victim].id, 'Вы защищаетесь. Постарайтесь пережить атаку для ответного хода.')
-        send_move_request(users[predator])
+        global fighter
+        fighter = Fighter(users[0], users[1])
+        bot.send_message(fighter.get_attacker().id, 'Вы нападаете первым. Выберите скилл или зелье из доступных.')
+        bot.send_message(fighter.get_defender().id, 'Вы защищаетесь. Переживите атаку для ответного хода.')
+        send_move_request(fighter.get_attacker(),message)
 
 
-def send_move_request(player):
-    player1_info = print_player_info(users[0])
-    player2_info = print_player_info(users[1])
-    bot.send_message(player.id, player1_info + '\n' + player2_info)
+def skill_handler(message):
+    skill_name = message.text
+    print('asdfdsaf')
+    for skill in fighter.get_attacker().active_skills:
+        if skill.name == skill_name:
+            use_active_skill = UseActiveSkill(skill)
+            fighter.step(use_active_skill)
+            break
+    print('abc')
+    send_move_request()
+
+
+def send_move_request(player, message):
+    player1_info = print_player_info(fighter.get_attacker())
+    player2_info = print_player_info(fighter.get_defender())
+    bot.send_message(player.id, player1_info + '\n' + player2_info, reply_markup=choose_skill())
+    bot.register_next_step_handler(message, skill_handler)
+    print('работай')
+
+def choose_skill():
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    buttons = []
+    for i in fighter.get_attacker().active_skills:
+        buttons.append(i.name)
+    keyboard.add(*buttons)
+    return keyboard
+
+
 
 
 def print_player_info(player: Player):

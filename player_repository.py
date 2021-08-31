@@ -14,7 +14,7 @@ class PlayerRepository:
         player1 = Player(player_id, 10, 'Ivan', 63, 63, 20, 15, 40, 40, 10, [
             ActiveSkill('knife', 'F', 'first skill', 5, ActiveSkillEffect(25, ActiveSkillEffectType.damage.value)),
 
-            ActiveSkill('knife', 'F', 'first skill', 5, ActiveSkillEffect(30, ActiveSkillEffectType.damage.value))
+            ActiveSkill('hunter', 'F', 'first skill', 5, ActiveSkillEffect(30, ActiveSkillEffectType.damage.value))
         ],
                          [PassiveSkill('power increase', 'F', 'first passive skill',
                                        PassiveSkillEffect(5, PassiveSkillEffectType.increase_power.value))], equipment1,
