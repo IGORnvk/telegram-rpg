@@ -25,6 +25,9 @@ class PassiveSkill(Skill):
         Skill.__init__(self, name, rang, description)
         self.effect = effect
 
+    def __repr__(self):
+        return f"{self.name}, {self.rang}, {self.description}, {self.effect}"
+
 
 class ActiveSkillEffectType(enum.Enum):
     damage = 0
@@ -43,3 +46,6 @@ class ActiveSkill(Skill):
         Skill.__init__(self, name, rang, description)
         self.mana_usage = mana_usage
         self.effect = effect
+
+    def __repr__(self):
+        return f'{self.name}, {self.rang}, {self.description}, {self.mana_usage}, {self.effect}'

@@ -1,3 +1,6 @@
+import psycopg2
+from psycopg2 import sql
+
 from equipment import Equipment
 from inventory import Inventory
 from item import Armor, ArmorType, Potion, PotionEffect, PotionEffectType
@@ -8,16 +11,110 @@ from skill import ActiveSkill, ActiveSkillEffect, ActiveSkillEffectType, Passive
 
 class PlayerRepository:
     @staticmethod
-    def get_player(player_id, player_name):
-        armor = Armor('shield', 'F', 100, ArmorType.shield.value)
-        equipment1 = Equipment(shield=armor)
-        return Player(player_id, 10, player_name, 63, 63, 20, 15, 40, 40, 10, [
-            ActiveSkill('knife', 'F', 'first skill', 5, ActiveSkillEffect(25, ActiveSkillEffectType.damage.value)),
+    def get_player(telegram_id):
+        conn = None
+        try:
+            conn = psycopg2.connect(
+                host="localhost",
+                database="roleplay",
+                user="postgres",
+                password="0989117777")
+            cur = conn.cursor()
+            sql = 'SELECT * from player WHERE telegram_id = %s'
+            cur.execute(sql, (telegram_id, ))
+            record = cur.fetchone()
+            player = Player(
+                id=record[1],
+                level='46',
+                username=record[2],
+                max_health=record[3],
+                cur_health=record[3],
+                power=record[5],
+                defense=record[6],
+                mana=record[4],
+                cur_mana=record[4],
+                intelligence=record[7],
+                active_skills=PlayerRepository.get_active_skills(record[0]),
+                passive_skills=PlayerRepository.get_passive_skills(record[0]),
+                equipment=[],
+                inventory=[],
+                potions=[]
+            )
+            cur.close()
+            return player
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+                print('Database connection closed.')
 
-            ActiveSkill('hunter', 'F', 'first skill', 5, ActiveSkillEffect(30, ActiveSkillEffectType.damage.value))
-        ],
-                         [PassiveSkill('power increase', 'F', 'first passive skill',
-                                       PassiveSkillEffect(5, PassiveSkillEffectType.increase_power.value))], equipment1,
-                         Inventory([Potion('power buff', 'F', PotionEffect(500, PotionEffectType.power.value)),
-                                    Potion("God's blessing", 'C', PotionEffect(300, PotionEffectType.health.value))]),
-                         [])
+    @staticmethod
+    def get_active_skills(player_id):
+        conn = None
+        try:
+            conn = psycopg2.connect(
+                host="localhost",
+                database="roleplay",
+                user="postgres",
+                password="0989117777")
+            cur = conn.cursor()
+            print('PostgreSQL database version:')
+            sql = 'SELECT * from active_skill JOIN player_has_active_skill ON active_skill.id = player_has_active_skill.active_skill_id WHERE player_id = %s'
+            cur.execute(sql, (player_id,))
+            records = cur.fetchall()
+            active_skills = []
+            for record in records:
+                active_skill = ActiveSkill(
+                    name=record[1],
+                    rang=record[2],
+                    description=record[3],
+                    mana_usage=record[4],
+                    effect=record[5]
+                )
+                active_skills.append(active_skill)
+            cur.close()
+            return active_skills
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+            print('Database connection closed.')
+
+    @staticmethod
+    def get_passive_skills(player_id):
+        conn = None
+        try:
+            conn = psycopg2.connect(
+                host="localhost",
+                database="roleplay",
+                user="postgres",
+                password="0989117777")
+            cur = conn.cursor()
+            print('PostgreSQL database version:')
+            sql = 'SELECT * from passive_skill JOIN player_has_passive_skill ON passive_skill.id = player_has_passive_skill.passive_skill_id WHERE player_id = %s'
+            cur.execute(sql, (player_id,))
+            records = cur.fetchall()
+            passive_skills = []
+            for record in records:
+                passive_skill = PassiveSkill(
+                    name=record[1],
+                    rang=record[2],
+                    description=record[3],
+                    effect=record[4]
+                )
+                passive_skills.append(passive_skill)
+            cur.close()
+            return passive_skills
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+            print('Database connection closed.')
+
+
+if __name__ == '__main__':
+    player = PlayerRepository.get_player('720419160')
+    print(player.passive_skills)
