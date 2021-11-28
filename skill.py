@@ -18,6 +18,22 @@ class PassiveSkillEffect:
     def __init__(self, value, type: PassiveSkillEffectType):
         self.value = value
         self.type = type
+
+    @staticmethod
+    def passive_skill_effect_from_db(effect_name, value):
+        effect_type = -1
+
+        if effect_name == "increase_power":
+            effect_type = PassiveSkillEffectType.increase_power.value
+        elif effect_name == "increase_defense":
+            effect_type = PassiveSkillEffectType.increase_defense.value
+        elif effect_name == "increase_mana":
+            effect_type = PassiveSkillEffectType.increase_mana.value
+
+        assert effect_type != -1, \
+            "effect_name should have an appropriate value!"
+
+        return PassiveSkillEffect(value, effect_type)
         
 
 class PassiveSkill(Skill):
@@ -27,6 +43,15 @@ class PassiveSkill(Skill):
 
     def __repr__(self):
         return f"{self.name}, {self.rang}, {self.description}, {self.effect}"
+
+    @staticmethod
+    def passive_skill_from_db(name, rang, description, effect_name, effect_value):
+        return PassiveSkill(
+            name=name,
+            rang=rang,
+            description=description,
+            effect=PassiveSkillEffect.passive_skill_effect_from_db(effect_name, effect_value)
+        )
 
 
 class ActiveSkillEffectType(enum.Enum):

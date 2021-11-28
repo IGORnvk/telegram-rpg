@@ -60,7 +60,9 @@ class PlayerRepository:
                 password="0989117777")
             cur = conn.cursor()
             print('PostgreSQL database version:')
-            sql = 'SELECT * from active_skill JOIN player_has_active_skill ON active_skill.id = player_has_active_skill.active_skill_id WHERE player_id = %s'
+            sql = 'SELECT * from active_skill JOIN player_has_active_skill ' \
+                  'ON active_skill.id = player_has_active_skill.active_skill_id ' \
+                  'WHERE player_id = %s'
             cur.execute(sql, (player_id,))
             records = cur.fetchall()
             active_skills = []
@@ -93,16 +95,21 @@ class PlayerRepository:
                 password="0989117777")
             cur = conn.cursor()
             print('PostgreSQL database version:')
-            sql = 'SELECT * from passive_skill JOIN player_has_passive_skill ON passive_skill.id = player_has_passive_skill.passive_skill_id WHERE player_id = %s'
+            sql = 'SELECT passive_skill.id, passive_skill.name, passive_skill.description, passive_skill_effect.meaning,' \
+                  ' passive_skill.value from passive_skill ' \
+                  'JOIN player_has_passive_skill ON passive_skill.id = player_has_passive_skill.passive_skill_id ' \
+                  'JOIN passive_skill_effect ON passive_skill_effect.id = passive_skill.passive_skill_effect_id ' \
+                  'WHERE player_id = %s'
             cur.execute(sql, (player_id,))
             records = cur.fetchall()
             passive_skills = []
             for record in records:
-                passive_skill = PassiveSkill(
+                passive_skill = PassiveSkill.passive_skill_from_db(
                     name=record[1],
                     rang=record[2],
                     description=record[3],
-                    effect=record[4]
+                    effect_name=record[4],
+                    effect_value=record[5]
                 )
                 passive_skills.append(passive_skill)
             cur.close()
