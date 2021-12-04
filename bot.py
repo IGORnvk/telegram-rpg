@@ -10,7 +10,7 @@ from move_effect import AttackEffect, IncreaseHealthEffect, IncreasePowerEffect,
 from player import Player
 from player_repository import PlayerRepository
 
-bot = TeleBot('1015483974:AAFiuGMQB1CewhRP4JFbamvUZBjP9z3ytmw')
+bot = TeleBot('1015483974:AAF13KGscQY8X_jlTNQPLdsghjePJ7ij4Gg')
 
 users = []
 fighter = 0
@@ -23,7 +23,7 @@ def hello(message):
     if len(users) >= 2:
         bot.send_message(message.from_user.id, 'Достигнуто максимальное количество игроков!')
         return
-    player = PlayerRepository.get_player(message.from_user.id, message.from_user.username)
+    player = PlayerRepository.get_player(message.from_user.id)
     users.append(player)
     bot.register_next_step_handler(message, skill_handler)
     if len(users) == 1:

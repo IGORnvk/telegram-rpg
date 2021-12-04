@@ -36,8 +36,8 @@ class PlayerRepository:
                 intelligence=record[7],
                 active_skills=PlayerRepository.get_active_skills(record[0]),
                 passive_skills=PlayerRepository.get_passive_skills(record[0]),
-                equipment=[],
-                inventory=[],
+                equipment=Equipment(),
+                inventory=Inventory([]),
                 potions=[]
             )
             cur.close()
@@ -60,19 +60,22 @@ class PlayerRepository:
                 password="0989117777")
             cur = conn.cursor()
             print('PostgreSQL database version:')
-            sql = 'SELECT * from active_skill JOIN player_has_active_skill ' \
-                  'ON active_skill.id = player_has_active_skill.active_skill_id ' \
+            sql = 'SELECT active_skill.id, active_skill.name, rang.meaning, active_skill.description, active_skill_effect.meaning,' \
+                  ' active_skill.value from active_skill ' \
+                  'JOIN player_has_active_skill ON active_skill.id = player_has_active_skill.active_skill_id ' \
+                  'JOIN active_skill_effect ON active_skill_effect.id = active_skill.effect_type_id ' \
+                  'JOIN rang ON active_skill.rang_id = rang.id ' \
                   'WHERE player_id = %s'
             cur.execute(sql, (player_id,))
             records = cur.fetchall()
             active_skills = []
             for record in records:
-                active_skill = ActiveSkill(
+                active_skill = ActiveSkill.active_skill_from_db(
                     name=record[1],
                     rang=record[2],
                     description=record[3],
-                    mana_usage=record[4],
-                    effect=record[5]
+                    effect_name=record[4],
+                    effect_value=record[5]
                 )
                 active_skills.append(active_skill)
             cur.close()
@@ -95,10 +98,11 @@ class PlayerRepository:
                 password="0989117777")
             cur = conn.cursor()
             print('PostgreSQL database version:')
-            sql = 'SELECT passive_skill.id, passive_skill.name, passive_skill.description, passive_skill_effect.meaning,' \
+            sql = 'SELECT passive_skill.id, passive_skill.name, rang.meaning, passive_skill.description, passive_skill_effect.meaning,' \
                   ' passive_skill.value from passive_skill ' \
                   'JOIN player_has_passive_skill ON passive_skill.id = player_has_passive_skill.passive_skill_id ' \
-                  'JOIN passive_skill_effect ON passive_skill_effect.id = passive_skill.passive_skill_effect_id ' \
+                  'JOIN passive_skill_effect ON passive_skill_effect.id = passive_skill.effect_type_id ' \
+                  'JOIN rang ON passive_skill.rang_id = rang.id ' \
                   'WHERE player_id = %s'
             cur.execute(sql, (player_id,))
             records = cur.fetchall()
@@ -124,4 +128,5 @@ class PlayerRepository:
 
 if __name__ == '__main__':
     player = PlayerRepository.get_player('720419160')
+    print(player.active_skills)
     print(player.passive_skills)

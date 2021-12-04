@@ -34,6 +34,9 @@ class PassiveSkillEffect:
             "effect_name should have an appropriate value!"
 
         return PassiveSkillEffect(value, effect_type)
+
+    def __repr__(self):
+        return f"{self.value}, {self.type}"
         
 
 class PassiveSkill(Skill):
@@ -64,6 +67,25 @@ class ActiveSkillEffect:
     def __init__(self, value, type: ActiveSkillEffectType):
         self.value = value
         self.type = type
+
+    @staticmethod
+    def active_skill_effect_from_db(effect_name, value):
+        effect_type = -1
+
+        if effect_name == "damage":
+            effect_type = ActiveSkillEffectType.damage.value
+        elif effect_name == "heal":
+            effect_type = ActiveSkillEffectType.heal.value
+        elif effect_name == "debuff_defense":
+            effect_type = ActiveSkillEffectType.debuff_defense.value
+
+        assert effect_type != -1, \
+            "effect_name should have an appropriate value!"
+
+        return ActiveSkillEffect(value, effect_type)
+
+    def __repr__(self):
+        return f"{self.value}, {self.type}"
         
 
 class ActiveSkill(Skill):
@@ -71,6 +93,15 @@ class ActiveSkill(Skill):
         Skill.__init__(self, name, rang, description)
         self.mana_usage = mana_usage
         self.effect = effect
+
+    @staticmethod
+    def active_skill_from_db(name, rang, description, effect_name, effect_value):
+        return ActiveSkill(
+            name=name,
+            rang=rang,
+            description=description,
+            effect=ActiveSkillEffect.active_skill_effect_from_db(effect_name, effect_value)
+        )
 
     def __repr__(self):
         return f'{self.name}, {self.rang}, {self.description}, {self.mana_usage}, {self.effect}'
