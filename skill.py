@@ -95,10 +95,11 @@ class ActiveSkill(Skill):
         self.effect = effect
 
     @staticmethod
-    def active_skill_from_db(name, rang, description, effect_name, effect_value):
+    def active_skill_from_db(name, rang, description, mana_usage, effect_name, effect_value):
         return ActiveSkill(
             name=name,
             rang=rang,
+            mana_usage=mana_usage,
             description=description,
             effect=ActiveSkillEffect.active_skill_effect_from_db(effect_name, effect_value)
         )
