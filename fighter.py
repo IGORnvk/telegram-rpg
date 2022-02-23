@@ -56,19 +56,21 @@ class Fighter:
                     del attacker.inventory.items[i]
                     print("Зелье успешно использовано.")
                     break
-            if potion.effect.effect_type == PotionEffectType.power.value:
+            if potion.effect.effect_type == PotionEffectType.power:
                 attacker.potions.append(potion)
                 return IncreasePowerEffect(potion.effect.value, False)
-            if potion.effect.effect_type == PotionEffectType.defense.value:
+            if potion.effect.effect_type == PotionEffectType.defense:
                 attacker.potions.append(potion)
                 return IncreaseDefenseEffect(potion.effect.value, False)
-            if potion.effect.effect_type == PotionEffectType.health.value:
+            print(potion, 'заходи!!')
+            if potion.effect.effect_type == PotionEffectType.health:
+                print('увеличивай!!')
                 old_value = attacker.cur_health
                 attacker.cur_health += potion.effect.value
                 if attacker.cur_health >= attacker.max_health:
                     attacker.cur_health = attacker.max_health
                 return IncreaseHealthEffect(attacker.cur_health - old_value, False)
-            if potion.effect.effect_type == PotionEffectType.mana.value:
+            if potion.effect.effect_type == PotionEffectType.mana:
                 old_value = attacker.cur_mana
                 attacker.cur_mana += potion.effect.value
                 if attacker.cur_mana >= attacker.mana:

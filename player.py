@@ -3,9 +3,10 @@ from skill import PassiveSkillEffectType
 
 
 class Player:
-    def __init__(self, id, level, username, max_health, cur_health, power, defense, mana, cur_mana, intelligence, active_skills,
+    def __init__(self, id, telegram_id, level, username, max_health, cur_health, power, defense, mana, cur_mana, intelligence, active_skills,
                  passive_skills, equipment, inventory, potions):
         self.id = id
+        self.telegram_id = telegram_id
         self.level = level
         self.username = username
         self.max_health = max_health

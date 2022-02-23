@@ -2,6 +2,7 @@ from telebot import types
 
 from telebot import TeleBot
 
+from equipment import Equipment
 from fighter import Fighter
 from item import Potion
 from move import UseActiveSkill, UsePotion
@@ -25,20 +26,67 @@ def hello(message):
         return
     player = PlayerRepository.get_player(message.from_user.id)
     users.append(player)
+    print(player.inventory.items)
     bot.register_next_step_handler(message, skill_handler)
     if len(users) == 1:
         bot.send_message(message.from_user.id, 'Участников слишком мало, ожидайте.')
     if len(users) == 2:
         global fighter
         fighter = Fighter(users[0], users[1])
-        bot.send_message(fighter.get_attacker().id, 'Вы нападаете первым. Выберите скилл или зелье из доступных.')
-        bot.send_message(fighter.get_defender().id, 'Вы защищаетесь. Переживите атаку для ответного хода.')
+        bot.send_message(fighter.get_attacker().telegram_id, 'Вы нападаете первым. Выберите скилл или зелье из доступных.')
+        bot.send_message(fighter.get_defender().telegram_id, 'Вы защищаетесь. Переживите атаку для ответного хода.')
         send_move_request(fighter.get_attacker(), message)
+
+
+@bot.message_handler(commands=['equipment'])
+def equipment(message):
+    print(message.from_user.id)
+    player = PlayerRepository.get_player(message.from_user.id)
+    bot.send_message(message.from_user.id, print_equipment_info(player))
+
+
+@bot.message_handler(commands=['change_equipment'])
+def change_equipment(message):
+    print(message.from_user.id)
+    player = PlayerRepository.get_player(message.from_user.id)
+    bot.send_message(message.from_user.id, print_equipment_info(player), reply_markup=choose_item(player))
+    bot.register_next_step_handler(message, equipment_handler, player)
+
+
+def equipment_handler(message, player: Player):
+    item_name = message.text
+    if message.from_user.id != player.telegram_id:
+        return bot.register_next_step_handler(message, equipment_handler, player)
+    if item_name == 'exit':
+        return
+    for i in player.inventory.items:
+        if item_name == i.name:
+            PlayerRepository.update_equipment(i, player)
+            player = PlayerRepository.get_player(message.from_user.id)
+            bot.send_message(message.from_user.id, print_equipment_info(player), reply_markup=choose_item(player))
+            bot.register_next_step_handler(message, equipment_handler, player)
+
+
+def choose_item(player: Player):
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    buttons = []
+    for item in player.inventory.items:
+        buttons.append(item.name)
+    buttons.append('exit')
+    keyboard.add(*buttons)
+    return keyboard
+
+
+@bot.message_handler(commands=['inventory'])
+def inventory(message):
+    print(message.from_user.id)
+    player = PlayerRepository.get_player(message.from_user.id)
+    bot.send_message(message.from_user.id, print_inventory_info(player))
 
 
 def skill_handler(message):
     skill_name = message.text
-    if message.from_user.id != fighter.get_attacker().id:
+    if message.from_user.id != fighter.get_attacker().telegram_id:
         return bot.register_next_step_handler(message, skill_handler)
     print('asdfdsaf')
     for skill in fighter.get_attacker().active_skills:
@@ -57,21 +105,21 @@ def skill_handler(message):
             break
     print('abc')
     if fighter.is_finished:
-        bot.send_message(fighter.get_attacker().id, 'Бой окончен' + '\n' + str(fighter.get_defender().username) + ' победил')
-        bot.send_message(fighter.get_defender().id,
+        bot.send_message(fighter.get_attacker().telegram_id, 'Бой окончен' + '\n' + str(fighter.get_defender().username) + ' победил')
+        bot.send_message(fighter.get_defender().telegram_id,
                          'Бой окончен' + '\n' + str(fighter.get_defender().username) + ' победил')
         return
     send_move_request(fighter.get_attacker(), message)
     send_move_request(fighter.get_defender(), message)
-    bot.send_message(fighter.get_attacker().id, 'Ваш ход')
-    bot.send_message(fighter.get_defender().id, 'Противник выбирает скилл')
+    bot.send_message(fighter.get_attacker().telegram_id, 'Ваш ход')
+    bot.send_message(fighter.get_defender().telegram_id, 'Противник выбирает скилл')
     bot.register_next_step_handler(message, skill_handler)
 
 
 def send_move_request(player, message):
     player1_info = print_player_info(fighter.get_attacker())
     player2_info = print_player_info(fighter.get_defender())
-    bot.send_message(player.id, player1_info + '\n' + '\n' + player2_info, reply_markup=choose_ability())
+    bot.send_message(player.telegram_id, player1_info + '\n' + '\n' + player2_info, reply_markup=choose_ability())
     print('работай')
 
 
@@ -92,14 +140,16 @@ def send_move_effect(player_to_send, player_name, move, effect):
         message += 'защита повышена на ' + str(effect.value)
     elif type(effect) is IncreaseManaEffect:
         message += 'мана повышена на ' + str(effect.value)
-    bot.send_message(player_to_send.id, message)
+    bot.send_message(player_to_send.telegram_id, message)
 
 
 def choose_ability():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     buttons = []
     for i in fighter.get_attacker().active_skills:
-        buttons.append(i.name)
+        if i.mana_usage <= fighter.get_attacker().cur_mana:
+            print(i.mana_usage, fighter.get_attacker().cur_mana)
+            buttons.append(i.name)
     for i in fighter.get_attacker().inventory.items:
         if type(i) is Potion:
             buttons.append(i.name)
@@ -114,6 +164,33 @@ def print_player_info(player: Player):
                                                                                                       player.cur_mana,
                                                                                                       player.power_calculator(),
                                                                                                       player.defense_calculator()))
+
+
+def get_player_equipment_item_info(equipment: Equipment, item_name, boost_type):
+    if hasattr(equipment, item_name) is False:
+        return "-"
+    item = getattr(equipment, item_name)
+    if item is None:
+        return "-"
+    return f"{item.name}, +{getattr(item, boost_type)} к {'защите' if boost_type == 'defense' else 'атаке'}"
+
+
+def print_equipment_info(player: Player):
+    return f"""Экипировка:
+    Оружие: {get_player_equipment_item_info(player.equipment, "weapon", "power")}
+    Щит: {get_player_equipment_item_info(player.equipment, "shield", "defense")}
+    Шлем: {get_player_equipment_item_info(player.equipment, "headgear", "defense")}
+    Нагрудник: {get_player_equipment_item_info(player.equipment, "cuirasses", "defense")}
+    Перчатки: {get_player_equipment_item_info(player.equipment, "gauntlets", "defense")}
+    Ботинки: {get_player_equipment_item_info(player.equipment, "boots", "defense")}
+"""
+
+
+def print_inventory_info(player: Player):
+    inventory = 'Инвентарь:\n'
+    for item in player.inventory.items:
+        inventory += item.name + '\n'
+    return inventory
 
 
 bot.polling()
